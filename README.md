@@ -1,2 +1,2 @@
 # proUtils
-Process Utilities (proUtils) repository contains all the helper functions that are used in different projects. 
+Process Utilities (proUtils) repository is a package that contains all the helper functions are used in my different projects. 
