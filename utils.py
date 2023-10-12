@@ -62,7 +62,7 @@ def combine_ndarrays(*arrays, space_btwn=10):
     return combined_array
 
 
-def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, plot=False):
+def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, ang_vari=2, plot=False):
     """
    Corrects the tilt in an input image by detecting and removing tilt angle.
 
@@ -70,6 +70,7 @@ def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, plot=False)
    - imarray (numpy.ndarray): The input image as a NumPy array.
    - edge_th (int, optional): Threshold for edge detection. Default is 1.
    - edge_filter (function, optional): Edge detection filter function. Default is filters.prewitt.
+   - ang_vari (int/float, optional): Allowed variation of angles. Default is 2 degree.
    - plot (bool, optional): Whether to plot intermediate results. Default is False.
 
    Returns:
@@ -105,7 +106,7 @@ def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, plot=False)
         for j in range(len(angle_list)):
             angle_variation[i, j] = abs(angle_list[j] - angle_list[i])
     
-    if angle_variation.max() > 2:
+    if angle_variation.max() > ang_vari:
         print("Could not find exact straight line for tilt correction")
         fig, axes = plt.subplots(1, 3, figsize=(15, 6))
         ax = axes.ravel()
