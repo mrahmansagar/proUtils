@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
-
 @author: Mmr Sagar
 PhD Researcher | MPI-NAT Goettingen, Germany
 """
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage as nd
 from skimage import filters, img_as_ubyte
 from skimage.transform import hough_line, hough_line_peaks
+
+import tifffile
+
 
 def norm8bit(v, minVal=None, maxVal=None):
     """
@@ -95,6 +96,34 @@ def combine_ndarrays(*arrays, space_btwn=10):
         offset += array.shape[-1] + space_btwn
 
     return combined_array
+
+
+def save_vol_as_slices(volume, folderName):
+    """
+    Save a 3D volume as individual 2D slices in a specified folder.
+
+    Args:
+        volume (ndarray): A 3D array representing the volume to be saved as 2D slices.
+        folderName (str): The name of the folder where the slices will be saved.
+
+    This function takes a 3D volume represented as a NumPy ndarray and saves 
+    each individual 2D slice as a separate image file in the specified folder. 
+    It creates the folder if it does not exist. Each slice is saved as a TIFF 
+    image with a filename indicating the slice number.
+
+    Example usage:
+    volume_data = load_3d_volume("volume_data.npy")
+    save_vol_as_slices(volume_data, "output_slices_folder")
+    """
+    depth = volume.shape[0]
+    for aSlice in range(depth):
+        img = volume[aSlice, :, :]
+        if not os.path.exists(folderName):
+            os.makedirs(folderName)
+        fName = os.path.join(folderName, f'slice_{aSlice}.tif') 
+        tifffile.imwrite(fName, img)
+
+
 
 
 def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, ang_vari=2, plot=False):
