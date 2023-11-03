@@ -4,13 +4,72 @@
 PhD Researcher | MPI-NAT Goettingen, Germany
 """
 import os
+from tkinter import Tcl
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import ndimage as nd
 from skimage import filters, img_as_ubyte
 from skimage.transform import hough_line, hough_line_peaks
 
+from PIL import Image
+
 import tifffile
+
+def load_roi(roi_path):
+    """
+    Load a stack of 2D image slices from the specified directory and create a 3D volume.
+
+    Args:
+        roi_path (str): The path to the directory containing the image slices.
+
+    Returns:
+        numpy.ndarray: A 3D NumPy array representing the volume formed by stacking the image slices.
+                      The shape of the array is (num_slices, height, width), and the data type
+                      matches the data type of the image slices.
+
+    This function reads image slices from the specified directory, sorts them in a natural
+    order, and assembles them into a 3D volume. Blank slices (those containing all zeros) are
+    identified and added at the end of the volume. The resulting volume can be used for various
+    medical imaging and scientific applications.
+
+    Note:
+    - Image file formats supported for reading must be compatible with the 'PIL' library.
+    - The slices are assumed to be 2D images with uniform dimensions (height and width).
+    - The function assumes that the image slices have consistent data types.
+
+    Example usage:
+    ```python
+    roi_volume = load_roi('/path/to/slice_directory')
+    ```
+
+    In the example above, `roi_volume` will contain a 3D NumPy array representing the volume
+    formed by stacking the image slices from the specified directory.
+    """
+    
+    files = os.listdir(roi_path)
+    slices = Tcl().call('lsort', '-dict', files)
+    sample = Image.open(os.path.join(roi_path, slices[0]))
+    sample = np.array(sample)
+    vol = np.empty(shape=(len(slices), *sample.shape), dtype=sample.dtype)
+    
+    #temporary list to hold blank slices 
+    blank_slices = []
+    
+    for i, fname in enumerate(slices):
+        im = Image.open(os.path.join(roi_path, fname))
+        imarray = np.array(im)
+        
+        if np.all(imarray == 0):
+            blank_slices.append(imarray)
+        else:
+            vol[i - len(blank_slices), :, :] = imarray
+    
+    # Append blank slices at the end
+    if len(blank_slices) > 0:
+        vol[-len(blank_slices):] = blank_slices
+    
+    return vol
+                        
 
 
 def norm8bit(v, minVal=None, maxVal=None):
