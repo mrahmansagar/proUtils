@@ -15,12 +15,13 @@ from PIL import Image
 
 import tifffile
 
-def load_roi(roi_path):
+def load_roi(roi_path, check_blank=False):
     """
     Load a stack of 2D image slices from the specified directory and create a 3D volume.
 
     Args:
         roi_path (str): The path to the directory containing the image slices.
+        check_for_blank (bool, optional): Whether to check for and handle blank slices (default is False).
 
     Returns:
         numpy.ndarray: A 3D NumPy array representing the volume formed by stacking the image slices.
@@ -28,9 +29,10 @@ def load_roi(roi_path):
                       matches the data type of the image slices.
 
     This function reads image slices from the specified directory, sorts them in a natural
-    order, and assembles them into a 3D volume. Blank slices (those containing all zeros) are
-    identified and added at the end of the volume. The resulting volume can be used for various
-    medical imaging and scientific applications.
+    order, and assembles them into a 3D volume. If check_blank is set to true then 
+    Blank slices (those containing all zeros) are identified and added at the 
+    end of the volume. The resulting volume can be used for various medical imaging 
+    and scientific applications.
 
     Note:
     - Image file formats supported for reading must be compatible with the 'PIL' library.
@@ -59,7 +61,7 @@ def load_roi(roi_path):
         im = Image.open(os.path.join(roi_path, fname))
         imarray = np.array(im)
         
-        if np.all(imarray == 0):
+        if check_blank and np.all(imarray == 0):
             blank_slices.append(imarray)
         else:
             vol[i - len(blank_slices), :, :] = imarray
