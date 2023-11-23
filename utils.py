@@ -15,6 +15,29 @@ from PIL import Image
 
 import tifffile
 
+
+# scaling the data/global range adjustment to match with old data range 
+def map_values_to_range(input_array, from_low, from_high, to_low, to_high):
+    """
+    Map values from one range to another using linear scaling.
+
+    Parameters:
+    - input_array (numpy.ndarray): The array containing values to be mapped.
+    - from_low (float): The lower bound of the original range.
+    - from_high (float): The upper bound of the original range.
+    - to_low (float): The lower bound of the target range.
+    - to_high (float): The upper bound of the target range.
+
+    Returns:
+    numpy.ndarray: An array with values mapped from the original range to the target range.
+    """
+    from_diff = from_high - from_low
+    to_diff = to_high - to_low
+    mapped_array = (input_array - from_low) / from_diff * to_diff + to_low
+    
+    return mapped_array
+
+
 def load_roi(roi_path, check_blank=False):
     """
     Load a stack of 2D image slices from the specified directory and create a 3D volume.
