@@ -369,3 +369,100 @@ def tilt_correction(imarray, edge_th=1, edge_filter=filters.prewitt, ang_vari=2,
             plt.show()
         
         return rotated_imarray, rotation, d
+
+
+def apply_morphology(arr, filter_type, filter_size=None, iterations=1):
+    """
+    Perform morphological operations on binary input arrays.
+
+    Parameters
+    ----------
+    arr : numpy.ndarray
+        Binary input array to apply morphological operations on.
+    filter_type : str
+        Type of morphological operation to apply. Available options are:
+        - 'erosion'
+        - 'dilation'
+        - 'opening'
+        - 'closing'
+        - 'fill_holes'
+    filter_size : list of ints, optional
+        Size of the morphological filter. Defaults to None.
+    iterations : int, optional
+        Number of iterations to perform the morphological operation. Defaults to 1.
+
+    Returns
+    -------
+    filtered_arr : numpy.ndarray
+        Binary array after applying the morphological operation.
+
+    Raises
+    ------
+    ValueError
+        If the input array is not of binary data type.
+        If the filter size is not None and does not have the same number of dimensions as the input array.
+        If the filter size is not None and is greater than or equal to the size of the input array in each dimension.
+        If the filter type is not a valid option.
+    """
+    
+    if not np.issubdtype(arr.dtype, np.bool_):
+        raise ValueError("Input array is not of binary data type.")
+    
+    if filter_size is not None and len(filter_size) != arr.ndim:
+        raise ValueError("Filter size must have the same number of dimensions as the input array.")
+    
+    if filter_size is not None:
+        for i in range(arr.ndim):
+            if filter_size[i] >= arr.shape[i]:
+                raise ValueError("Filter size must be smaller than the size of the input array in each dimension.")        
+        size = np.ones(shape=filter_size)
+    
+    if filter_type == "erosion":
+        filtered_arr = nd.binary_erosion(arr, structure=size, iterations=iterations)
+    elif filter_type == "dilation":
+        filtered_arr = nd.binary_dilation(arr, structure=size, iterations=iterations)
+    elif filter_type == "opening":
+        filtered_arr = nd.binary_opening(arr, structure=size, iterations=iterations)
+    elif filter_type == "closing":
+        filtered_arr = nd.binary_closing(arr, structure=size, iterations=iterations)
+    elif filter_type == "fill_holes":
+        filtered_arr = nd.binary_fill_holes(arr, structure=size)
+    else:
+        raise ValueError("Invalid filter type. Available options are 'erosion', 'dilation', 'opening', 'closing', and 'fill_holes'.")
+    
+    return filtered_arr
+
+
+def apply_morphology_inorder(arr, morphology_operations=None):
+    """
+    Applies morphology operations to the input array in a specified order.
+
+    Args:
+    - arr (numpy.ndarray): Input array to which morphology operations will be applied.
+    - morphology_operations (list): List of tuples, where each tuple represents a morphology operation
+    to be applied to the input array. Each tuple should have 2 or 3 elements:
+      - First element is a string representing the name of the morphology operation.
+      - Second element is an integer representing the size of the structuring element or filter.
+      - Third element (optional) is an integer representing the number of iterations for the morphology
+      operation. This element is only required for erosion, dilation, opening, and closing operations.
+
+    Returns:
+    - morph_arr (numpy.ndarray): Output array after applying all specified morphology operations
+    in the specified order.
+
+    If morphology_operations is None, the function prints a message and returns None.
+
+    """
+    if morphology_operations:
+        morph_arr = arr
+        for operation in morphology_operations:
+            if operation[0] == 'fill_holes':
+                morph_arr = apply_morphology(morph_arr, filter_type=operation[0], filter_size=operation[1])
+            else:
+                # Apply other morphological operations
+                morph_arr = apply_morphology(morph_arr, filter_type=operation[0], filter_size=operation[1], iterations=operation[2])
+
+        return morph_arr
+    else: 
+        print('No morphology operations are specified.')
+    
