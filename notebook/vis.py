@@ -57,7 +57,8 @@ def interactive_visualize(arr, all_side=False, cmap='gray', **kwargs):
             else:
                 fig, ax = plt.subplots(1, 1)
                 plt.subplots_adjust(hspace=0.1, wspace=0.1)
-                ax.imshow(arr[slice_number, :, :], cmap=cmap, **kwargs)
+                pos = ax.imshow(arr[slice_number, :, :], cmap=cmap, **kwargs)
+                fig.colorbar(pos, ax=ax)
                 plt.show()
 
 
