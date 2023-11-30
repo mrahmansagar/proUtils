@@ -12,7 +12,7 @@ import ipywidgets as widgets
 import numpy as np
 import matplotlib.pyplot as plt 
 
-def interactive_visualize(arr, all_side=False, cmap='gray', **kwargs):
+def interactive_visualize(arr, all_side=False, cmap='gray',figsize=None, **kwargs):
     """
     This function creates an interactive visualization of the input array in 2D or 3D.
 
@@ -44,7 +44,7 @@ def interactive_visualize(arr, all_side=False, cmap='gray', **kwargs):
             None
             """
             if all_side:
-                fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+                fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=figsize)
                 ax1.imshow(arr[slice_number, :, :], cmap=cmap, **kwargs)
                 ax2.imshow(arr[:, slice_number, :], cmap=cmap, **kwargs)
                 ax2.set_xticks([])
