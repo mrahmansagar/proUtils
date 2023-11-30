@@ -66,4 +66,60 @@ def cross_corr_heatmap(data_dict, cmap='coolwarm', savefig=False,
     plt.show()
     
 
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import numpy as np
 
+def box_plot(data, groups=None, showfliers=False, showmeans=False, pval=False):
+    fig, ax = plt.subplots(figsize=(10,10))
+    box_plot = ax.boxplot(data, showmeans=showmeans, showfliers=showfliers, patch_artist=True)
+    
+    # Add color to the boxes
+    colors = ['lightblue', 'lightgreen', 'wheat', 'plum']
+    for patch, color in zip(box_plot['boxes'], colors):
+        patch.set_facecolor(color)
+    
+    # Extract components from the boxplot
+    caps = [cap.get_ydata() for cap in box_plot['caps']]
+    # boxes = [box.get_ydata() for box in box_plot['boxes']]
+    # medians = [median.get_ydata() for median in box_plot['medians']]
+    
+    cap_max = np.max(caps)
+    
+    
+    if pval and all(isinstance(sublist, list) for sublist in data):
+        
+        all_data = []
+        all_labels = []
+        for i, d in enumerate(data):
+            all_data += d
+            if groups is not None:
+                all_labels += [groups[i]] * len(d)
+            else:
+                all_labels += [f'grp{i}']* len(d)
+        
+        # Perform Tukey-Kramer post hoc test for pairwise comparisons
+        tukey_results = pairwise_tukeyhsd(all_data, all_labels, alpha=0.05)
+        tukey_data = tukey_results.summary().data
+        p_font = 20
+        y = cap_max
+        count = 1
+        for a in range(len(data)):
+            for b in range(a + 1, len(data)):
+                
+                x1 = a+1
+                x2 = b+1
+                y, h, col = (y + cap_max*0.15), 7e3, 'k'
+                p = tukey_data[count][3]
+                count = count + 1
+                plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.0, c=col)
+                plt.text((x1+x2)*.5, y+h, f'p={p}', ha='center', va='bottom', color=col, fontsize=p_font)
+                
+                
+    ax.ticklabel_format(axis='y', style='sci', scilimits=(4,4))
+    plt.rc('font', size=20)
+    plt.show()
+    
+    
+    
+    
+    
