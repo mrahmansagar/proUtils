@@ -269,7 +269,7 @@ def save_vol_as_slices(volume, folderName):
         img = volume[aSlice, :, :]
         if not os.path.exists(folderName):
             os.makedirs(folderName)
-        fName = os.path.join(folderName, f'slice_{aSlice}.tif') 
+        fName = os.path.join(folderName, f'slice_{aSlice:04d}.tif') 
         tifffile.imwrite(fName, img)
 
 
