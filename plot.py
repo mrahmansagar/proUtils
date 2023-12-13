@@ -72,7 +72,22 @@ import numpy as np
 def box_plot(data, groups=None, showfliers=False, showmeans=False, pval=False, 
              figsize=None, p_font=None, rc_font=12, figName=None):
     """
-    data: list of list(s)
+    Create a box plot for multiple datasets with optional group labels and pairwise comparison p-values.
+
+    Parameters:
+    - data (list of arrays): List of datasets to be plotted.
+    - groups (list or None): List of group labels corresponding to each dataset. If None, default labels are used.
+    - showfliers (bool): Whether to display outliers in the box plot. Default is False.
+    - showmeans (bool): Whether to display mean values in the box plot. Default is False.
+    - pval (bool): Whether to perform Tukey-Kramer post hoc test for pairwise comparisons and display p-values.
+                   Default is False.
+    - figsize (tuple or None): Size of the figure (width, height). If None, default size is used.
+    - p_font (int or None): Font size for p-values. If None, default size is used.
+    - rc_font (int): Font size for the entire plot. Default is 12.
+    - figName (str or None): Filepath to save the figure. If None, the plot is displayed but not saved.
+
+    Returns:
+    - None: Displays the box plot with optional p-values and saves the figure if figName is provided.
     """
     fig, ax = plt.subplots(figsize=figsize)
     
