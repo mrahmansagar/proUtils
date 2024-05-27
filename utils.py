@@ -38,7 +38,7 @@ def map_values_to_range(input_array, from_low, from_high, to_low, to_high):
     return mapped_array
 
 
-def load_roi(roi_path, check_blank=False):
+def load_roi(roi_path, file_range=None, check_blank=False):
     """
     Load a stack of 2D image slices from the specified directory and create a 3D volume.
 
@@ -73,6 +73,10 @@ def load_roi(roi_path, check_blank=False):
     
     files = os.listdir(roi_path)
     slices = Tcl().call('lsort', '-dict', files)
+    
+    if file_range is not None:
+        slices = slices[file_range[0] : file_range[1]+1]
+    
     sample = Image.open(os.path.join(roi_path, slices[0]))
     sample = np.array(sample)
     vol = np.empty(shape=(len(slices), *sample.shape), dtype=sample.dtype)
