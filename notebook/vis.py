@@ -12,7 +12,7 @@ import ipywidgets as widgets
 import numpy as np
 import matplotlib.pyplot as plt 
 
-def interactive_visualize(arr, all_side=False, cmap='gray',figsize=None, **kwargs):
+def interactive_visualize(arr, all_side=False, cmap='gray',figsize=None, colorbar=False, **kwargs):
     """
     This function creates an interactive visualization of the input array in 2D or 3D.
 
@@ -55,10 +55,11 @@ def interactive_visualize(arr, all_side=False, cmap='gray',figsize=None, **kwarg
                 plt.show()
                 
             else:
-                fig, ax = plt.subplots(1, 1)
+                fig, ax = plt.subplots(1, 1,  figsize=figsize)
                 plt.subplots_adjust(hspace=0.1, wspace=0.1)
                 pos = ax.imshow(arr[slice_number, :, :], cmap=cmap, **kwargs)
-                fig.colorbar(pos, ax=ax)
+                if colorbar:
+                    fig.colorbar(pos, ax=ax)
                 plt.show()
 
 
