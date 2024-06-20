@@ -469,4 +469,107 @@ def apply_morphology_inorder(arr, morphology_operations=None):
         return morph_arr
     else: 
         print('No morphology operations are specified.')
+
+
+
+# A generator that produces chunks of the specified size with the specified overlap.
+def chunk_list(input_list, chunk_size, overlap):
+    """
+    Generate chunks of a specified size with a specified overlap from a given list.
+
+    Parameters:
+    - input_list: The input list to be chunked.
+    - chunk_size: The size of each chunk.
+    - overlap: The number of elements to overlap between chunks.
+
+    Returns:
+    A generator that produces chunks of the specified size with the specified overlap.
+    """
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be greater than 0")
+    if overlap < 0:
+        raise ValueError("overlap must be non-negative")
+    if overlap >= chunk_size:
+        raise ValueError("overlap must be less than chunk_size")
+
+    for i in range(0, len(input_list), chunk_size - overlap):
+        yield input_list[i:i + chunk_size]
+
+
+
+
+# The padded array with dimensions divisible by the specified patch size.
+def pad_to_match_patch(data, patch_size, mode='constant', constant_values=0):
+    """
+    Pads the given array (2D or 3D) to make its dimensions divisible by the specified patch size.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        The input array to be padded. It should be a numpy array of shape (X, Y) or (X, Y, Z).
+    patch_size : tuple of int
+        The size of the patches as a tuple (a, b) for 2D or (a, b, c) for 3D.
+        The data will be padded so that its dimensions are divisible by the specified patch size.
+    mode : str, optional
+        The padding mode to be used. This can be any valid mode supported by numpy.pad.
+        Default is 'constant'.
+    constant_values : scalar or tuple of scalars, optional
+        The values to set the padded values for each axis if mode is 'constant'.
+        Default is 0.
+
+    Returns
+    -------
+    numpy.ndarray
+        The padded array with dimensions divisible by the specified patch size.
+
+    Examples
+    --------
+    >>> data = np.ones((10, 20))
+    >>> patch_size = (8, 8)
+    >>> padded_data = pad_to_match_patch(data, patch_size)
+    >>> padded_data.shape
+    (16, 24)
+
+    >>> data = np.ones((10, 20, 30))
+    >>> patch_size = (8, 8, 8)
+    >>> padded_data = pad_to_match_patch(data, patch_size)
+    >>> padded_data.shape
+    (16, 24, 32)
+    """
+    data_shape = data.shape
+    ndim = len(data_shape)
     
+    if ndim == 2:
+        X, Y = data_shape
+        a, b = patch_size
+
+        # Calculate padding amounts for each dimension
+        pad_x = (X % a != 0) * (a - X % a)
+        pad_y = (Y % b != 0) * (b - Y % b)
+
+        # Create pad width for numpy.pad
+        pad_width = ((0, pad_x), (0, pad_y))
+
+    elif ndim == 3:
+        X, Y, Z = data_shape
+        a, b, c = patch_size
+
+        # Calculate padding amounts for each dimension
+        pad_x = (X % a != 0) * (a - X % a)
+        pad_y = (Y % b != 0) * (b - Y % b)
+        pad_z = (Z % c != 0) * (c - Z % c)
+
+        # Create pad width for numpy.pad
+        pad_width = ((0, pad_x), (0, pad_y), (0, pad_z))
+    
+    else:
+        raise ValueError("data must be either 2D or 3D")
+
+    # Pad the data if needed
+    if any(pad != 0 for pad in np.array(pad_width).flatten()):
+        if mode == 'constant':
+            data = np.pad(data, pad_width, mode=mode, constant_values=constant_values)
+        else:
+            data = np.pad(data, pad_width, mode=mode)
+
+    return data
