@@ -573,3 +573,53 @@ def pad_to_match_patch(data, patch_size, mode='constant', constant_values=0):
             data = np.pad(data, pad_width, mode=mode)
 
     return data
+
+
+def pad_list(lst, n, append_first=True, append_last=False):
+    """
+    Pads the given list by appending the first and/or last elements a specified number of times.
+
+    Parameters
+    ----------
+    lst : list
+        The input list to be padded.
+    n : int
+        The number of times to append the first and/or last elements.
+        Must be a non-negative integer.
+    append_first : bool, optional
+        If True, appends the first element of the list `n` times at the beginning.
+        Default is True.
+    append_last : bool, optional
+        If True, appends the last element of the list `n` times at the end.
+        Default is False.
+
+    Returns
+    -------
+    list
+        The modified list with the first and/or last elements appended `n` times.
+
+    Raises
+    ------
+    ValueError
+        If `n` is a negative integer.
+
+    Examples
+    --------
+    >>> lst = [1, 2, 3]
+    >>> pad_list(lst, 2)
+    [1, 1, 1, 2, 3]
+
+    >>> pad_list(lst, 2, append_first=False, append_last=True)
+    [1, 2, 3, 3, 3]
+
+    >>> pad_list(lst, 1, append_first=True, append_last=True)
+    [1, 1, 2, 3, 3]
+    """
+    if n < 0:
+        raise ValueError("n should be a non-negative integer")
+    
+    first_entries = [lst[0]] * n if append_first else []
+    last_entries = [lst[-1]] * n if append_last else []
+    
+    modified_list = first_entries + lst + last_entries
+    return modified_list
