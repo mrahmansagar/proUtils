@@ -16,6 +16,46 @@ from PIL import Image
 import tifffile
 
 
+
+def read_images(image_dir, np_array=True, rgb=False):
+    """
+    Reads images from a directory, optionally converting them to NumPy arrays 
+    and/or RGB format, and returns them as a list.
+
+    Args:
+        image_dir (str): Path to the directory containing the images.
+        np_array (bool, optional): If True, converts the images to NumPy arrays. 
+            Defaults to True.
+        rgb (bool, optional): If True, converts the images to RGB format. 
+            Defaults to False.
+
+    Returns:
+        list: A list of images. Each image is a NumPy array if `np_array` is 
+        True; otherwise, each image is a PIL Image object.
+    """
+    # Get a list of files in the directory and sort them naturally
+    files = os.listdir(image_dir)
+    files = Tcl().call('lsort', '-dict', files)
+
+    images = []
+    for file in files:
+        # Open the image file
+        im = Image.open(os.path.join(image_dir, file))
+        
+        # Convert to RGB format if specified
+        if rgb:
+            im = im.convert('RGB')
+        
+        # Convert to NumPy array if specified
+        if np_array:
+            im = np.array(im)
+        
+        # Append the processed image to the list
+        images.append(im)
+
+    return images
+
+
 # scaling the data/global range adjustment to match with old data range 
 def map_values_to_range(input_array, from_low, from_high, to_low, to_high):
     """
